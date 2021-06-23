@@ -1,4 +1,4 @@
-# top-headline-tweet-bot
+# headlines-tweet-bot
 
 Automated Tweet Bot:
 
@@ -72,4 +72,4 @@ Code to call Twython package to tweet a post
 
 
 # Results
-![Image description](images/Results.JPG)
+![Image description](Results.JPG)
