@@ -168,6 +168,52 @@
         }
       }
     },
+    "EnterpriseLogAccessIamRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "arn:aws:iam::802587217904:root"
+              },
+              "Action": "sts:AssumeRole",
+              "Condition": {
+                "StringEquals": {
+                  "sts:ExternalId": "ServerlessEnterprise-Jv5SRdl1VB7CKqXfQ4"
+                }
+              }
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "LogFilterAccess",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:FilterLogEvents"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::GetAtt": [
+                        "HelloLogGroup",
+                        "Arn"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
     "HelloLambdaFunction": {
       "Type": "AWS::Lambda::Function",
       "Properties": {
@@ -175,9 +221,9 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/headlines-tweet-bot/dev/1624441665565-2021-06-23T09:47:45.565Z/headlines-tweet-bot.zip"
+          "S3Key": "serverless/headlines-tweet-bot/dev/1624540177582-2021-06-24T13:09:37.582Z/headlines-tweet-bot.zip"
         },
-        "Handler": "handler.hello",
+        "Handler": "s_hello.handler",
         "Runtime": "python3.8",
         "FunctionName": "headlines-tweet-bot-dev-hello",
         "MemorySize": 1024,
@@ -200,20 +246,20 @@
         "HelloLogGroup"
       ]
     },
-    "HelloLambdaVersionwMRTVjP0OFgsOu70QT4CVPOU00rgGwmkOV6sRzotR0": {
+    "HelloLambdaVersionOna239VBMoFzrGGsSXv1bjs2nwCEU62tXjZXGq2OKg": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "HelloLambdaFunction"
         },
-        "CodeSha256": "sNS0QrcnaW+ANmmH9tP9TYz8LK/7lIs/3CdwtepkX0k="
+        "CodeSha256": "7ClW/5eZZnLrLVhhE5c6E/cxtePEK+V75jilgRxw1nk="
       }
     },
     "HelloEventsRuleSchedule1": {
       "Type": "AWS::Events::Rule",
       "Properties": {
-        "ScheduleExpression": "cron(0/10 * * * ? *)",
+        "ScheduleExpression": "cron(0/30 * * * ? *)",
         "State": "ENABLED",
         "Name": "TheHinduTopHeadlinesTweetEventRule",
         "Description": "Every 10 minutes headlines from the hindu",
@@ -249,6 +295,56 @@
           ]
         }
       }
+    },
+    "HelloEventsRuleSchedule2": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "ScheduleExpression": "cron(0/5 * * * ? *)",
+        "State": "ENABLED",
+        "Name": "TOIHeadlinesTweetEventRule",
+        "Description": "Every 30 minutes headlines from the times of india",
+        "Targets": [
+          {
+            "Input": "{\"source\":\"the-times-of-india\"}",
+            "Arn": {
+              "Fn::GetAtt": [
+                "HelloLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Id": "helloSchedule"
+          }
+        ]
+      }
+    },
+    "HelloLambdaPermissionEventsRuleSchedule2": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "HelloLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "HelloEventsRuleSchedule2",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "CloudWatchLogsSubscriptionFilterHelloLogGroup": {
+      "Type": "AWS::Logs::SubscriptionFilter",
+      "Properties": {
+        "DestinationArn": "arn:aws:logs:ap-south-1:802587217904:destination:Jv5SRdl1VB7CKqXfQ4#XNZJ97vC7TkV6dFTW1#headlines-tweet-bot#dev",
+        "FilterPattern": "?\"REPORT RequestId: \" ?\"SERVERLESS_ENTERPRISE\"",
+        "LogGroupName": {
+          "Ref": "HelloLogGroup"
+        }
+      }
     }
   },
   "Outputs": {
@@ -257,10 +353,18 @@
         "Ref": "ServerlessDeploymentBucket"
       }
     },
+    "EnterpriseLogAccessIamRole": {
+      "Value": {
+        "Fn::GetAtt": [
+          "EnterpriseLogAccessIamRole",
+          "Arn"
+        ]
+      }
+    },
     "HelloLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "HelloLambdaVersionwMRTVjP0OFgsOu70QT4CVPOU00rgGwmkOV6sRzotR0"
+        "Ref": "HelloLambdaVersionOna239VBMoFzrGGsSXv1bjs2nwCEU62tXjZXGq2OKg"
       }
     }
   }

@@ -72,4 +72,4 @@ Code to call Twython package to tweet a post
 
 
 # Results
-![Image description](Results.JPG)
+![Image description](images/Results.JPG)
