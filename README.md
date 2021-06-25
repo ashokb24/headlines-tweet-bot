@@ -72,4 +72,9 @@ Code to call Twython package to tweet a post
 
 
 # Results
-![Image description](images/Results.JPG)
+## The Hindu Headlines Tweet Image
+![Image description](images/HINDU.JPG)
+
+## The Times of India Tweet Image
+![Image description](images/TOI_Result.JPG)
+!
